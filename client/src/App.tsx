@@ -1,5 +1,6 @@
 import "./App.css"
 import type { Card, Column } from "./types"
+import CardView from "./CardView"
 
 const sampleColumns: Column[] = [
   {id: "column 1", title: "To Do"},
@@ -25,9 +26,7 @@ function App() {
             {sampleCards
               .filter((card) => card.columnId === column.id)
               .map((card) => (
-                <div key={card.id} className="card">
-                  {card.title}
-                </div>
+                <CardView key = {card.id} card = {card} />
               ))}
           </div>
         ))}
