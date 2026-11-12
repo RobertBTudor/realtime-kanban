@@ -19,22 +19,47 @@ const sampleCards: Card[] = [
 function App() {
   const [cards, setCards] = useState(sampleCards)
   const [newTitle, setNewTitle] = useState("")
+  const [newColumnId, setNewColumnId] = useState(sampleColumns[0].id)
+
+  function moveCard(cardId: string, toColumnId: string) {
+    setCards(
+      cards.map((card) =>
+        card.id === cardId ? { ...card, columnId: toColumnId } : card
+      )
+    )
+  }
 
   return (
     <div className="app">
       <h1>Realtime Kanban</h1>
-      
+
       <form className="add-card-form">
         <input
           value={newTitle}
           onChange={(event) => setNewTitle(event.target.value)}
           placeholder="New card title..."
         />
+        <select
+          value={newColumnId}
+          onChange={(event) => setNewColumnId(event.target.value)}
+        >
+          {sampleColumns.map((column) => (
+            <option key={column.id} value={column.id}>
+              {column.title}
+            </option>
+          ))}
+        </select>
+
       </form>
 
       <div className="board">
         {sampleColumns.map((column) => (
-          <div key={column.id} className="column">
+          <div
+            key={column.id}
+            className="column"
+            onDragOver={(event) => event.preventDefault()}
+            onDrop={(event) => moveCard(event.dataTransfer.getData("text/plain"), column.id)}
+          >
             <h2>{column.title}</h2>
             {cards
               .filter((card) => card.columnId === column.id)
