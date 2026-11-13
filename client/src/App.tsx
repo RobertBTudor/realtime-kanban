@@ -1,8 +1,9 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import type { SubmitEvent } from "react"
 import "./App.css"
 import type { Card, Column, Priority } from "./types"
 import CardView from "./CardView"
+import { socket } from "./socket"
 
 const sampleColumns: Column[] = [
   {id: "column 1", title: "To Do"},
@@ -10,18 +11,19 @@ const sampleColumns: Column[] = [
   {id: "column 3", title: "Done"}
 ]
 
-const sampleCards: Card[] = [
-  { id: "card-1", columnId: "column 1", title: "Design the board layout", priority: "low" },
-  { id: "card-2", columnId: "column 1", title: "Set up the server", priority: "high" },
-  { id: "card-3", columnId: "column 2", title: "Build the Card component", assignee: "Robert", priority: "medium" },
-  { id: "card-4", columnId: "column 3", title: "Create the React project" },
-]
-
 function App() {
-  const [cards, setCards] = useState(sampleCards)
+  const [cards, setCards] = useState<Card[]>([])
   const [newTitle, setNewTitle] = useState("")
   const [newColumnId, setNewColumnId] = useState(sampleColumns[0].id)
   const [newPriority, setNewPriority] = useState<Priority | "">("")
+
+  useEffect(() => {
+    socket.on("cards", setCards)
+
+    return () => {
+      socket.off("cards", setCards)
+    }
+  }, [])
 
   function moveCard(cardId: string, toColumnId: string) {
     setCards(
