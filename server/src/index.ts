@@ -15,6 +15,23 @@ let cards: Card[] = [
 io.on("connection", (socket) => {
   console.log("Browser connected:", socket.id)
   socket.emit("cards", cards)
+
+  socket.on("card:move", (cardId: string, toColumnId: string) => {
+    cards = cards.map((card) =>
+      card.id === cardId ? { ...card, columnId: toColumnId } : card
+    )
+    io.emit("cards", cards)
+  })
+
+  socket.on("card:add", (newCard: Card) => {
+    cards = [...cards, newCard]
+    io.emit("cards", cards)
+  })
+
+  socket.on("card:delete", (cardId: string) => {
+    cards = cards.filter((card) => card.id !== cardId)
+    io.emit("cards", cards)
+  })
 })
 
 

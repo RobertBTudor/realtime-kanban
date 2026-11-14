@@ -26,15 +26,11 @@ function App() {
   }, [])
 
   function moveCard(cardId: string, toColumnId: string) {
-    setCards(
-      cards.map((card) =>
-        card.id === cardId ? { ...card, columnId: toColumnId } : card
-      )
-    )
+    socket.emit("card:move", cardId, toColumnId)
   }
 
   function deleteCard(cardId: string) {
-    setCards(cards.filter((card) => card.id !== cardId))
+    socket.emit("card:delete", cardId)
   }
 
   function addCard(event: SubmitEvent<HTMLFormElement>) {
@@ -50,7 +46,7 @@ function App() {
       priority: newPriority || undefined,
     }
 
-    setCards([...cards, newCard])
+    socket.emit("card:add", newCard)
     setNewTitle("")
     setNewPriority("")
   }
