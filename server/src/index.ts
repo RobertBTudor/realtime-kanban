@@ -56,6 +56,14 @@ io.on("connection", (socket) => {
     cards = cards.filter((card) => card.id !== cardId)
     io.emit("cards", cards)
   })
+
+  socket.on("card:update", async (updatedCard: Card) => {
+    await cardsCollection.replaceOne({ id: updatedCard.id }, updatedCard)
+    cards = cards.map((card) =>
+      card.id === updatedCard.id ? updatedCard : card
+    )
+    io.emit("cards", cards)
+  })
 })
 
 
