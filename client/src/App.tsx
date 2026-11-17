@@ -4,6 +4,7 @@ import "./App.css"
 import type { Card, Column, Priority } from "./types"
 import CardView from "./CardView"
 import EditCardPanel from "./EditCardPanel"
+import { formatDate } from "./formatDate"
 import { socket } from "./socket"
 
 const sampleColumns: Column[] = [
@@ -17,6 +18,9 @@ function App() {
   const [newTitle, setNewTitle] = useState("")
   const [newColumnId, setNewColumnId] = useState(sampleColumns[0].id)
   const [newPriority, setNewPriority] = useState<Priority | "">("")
+  const [newDescription, setNewDescription] = useState("")
+  const [newAssignee, setNewAssignee] = useState("")
+  const [newDueDate, setNewDueDate] = useState("")
   const [editingCardId, setEditingCardId] = useState<string | null>(null)
 
   const editingCard = cards.find((card) => card.id === editingCardId)
@@ -52,11 +56,17 @@ function App() {
       columnId: newColumnId,
       title,
       priority: newPriority || undefined,
+      description: newDescription.trim() || undefined,
+      assignee: newAssignee.trim() || undefined,
+      dueDate: newDueDate || undefined,
     }
 
     socket.emit("card:add", newCard)
     setNewTitle("")
     setNewPriority("")
+    setNewDescription("")
+    setNewAssignee("")
+    setNewDueDate("")
   }
 
   return (
@@ -79,31 +89,79 @@ function App() {
                 <span className={`tag tag-${newPriority}`}>{newPriority}</span>
               )}
               <div className="card-title">{newTitle.trim() || "Your card title"}</div>
+              {newDescription.trim() && (
+                <div className="card-description">{newDescription}</div>
+              )}
+              {(newAssignee.trim() || newDueDate) && (
+                <div className="card-meta">
+                  <span>{newAssignee}</span>
+                  {newDueDate && <span>Due {formatDate(newDueDate)}</span>}
+                </div>
+              )}
             </div>
-            <input
-              value={newTitle}
-              onChange={(event) => setNewTitle(event.target.value)}
-              placeholder="New card title..."
-            />
-            <select
-              value={newColumnId}
-              onChange={(event) => setNewColumnId(event.target.value)}
-            >
-              {sampleColumns.map((column) => (
-                <option key={column.id} value={column.id}>
-                  {column.title}
-                </option>
-              ))}
-            </select>
-            <select
-              value={newPriority}
-              onChange={(event) => setNewPriority(event.target.value as Priority | "")}
-            >
-              <option value="">No priority</option>
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-            </select>
+
+            <label>
+              Title
+              <input
+                value={newTitle}
+                onChange={(event) => setNewTitle(event.target.value)}
+                placeholder="New card title..."
+              />
+            </label>
+
+            <label>
+              Description
+              <textarea
+                value={newDescription}
+                onChange={(event) => setNewDescription(event.target.value)}
+                rows={3}
+              />
+            </label>
+
+            <label>
+              Assignee
+              <input
+                value={newAssignee}
+                onChange={(event) => setNewAssignee(event.target.value)}
+              />
+            </label>
+
+            <label>
+              Due date
+              <input
+                type="date"
+                value={newDueDate}
+                onChange={(event) => setNewDueDate(event.target.value)}
+              />
+            </label>
+
+            <label>
+              Column
+              <select
+                value={newColumnId}
+                onChange={(event) => setNewColumnId(event.target.value)}
+              >
+                {sampleColumns.map((column) => (
+                  <option key={column.id} value={column.id}>
+                    {column.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label>
+              Priority
+              <select
+                value={newPriority}
+                onChange={(event) => setNewPriority(event.target.value as Priority | "")}
+              >
+                <option value="">No priority</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </label>
+
             <button type="submit">Add</button>
           </form>
         )}

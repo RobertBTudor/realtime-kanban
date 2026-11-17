@@ -1,4 +1,5 @@
 import type {Card} from "./types"
+import { formatDate } from "./formatDate"
 
 type CardViewProps = {
     card: Card
@@ -27,7 +28,13 @@ function CardView({card, isSelected, onSelect, onDelete}: CardViewProps) {
             </button>
             {card.priority && <span className={`tag tag-${card.priority}`}>{card.priority}</span>}
             <div className="card-title">{card.title}</div>
-            {card.assignee && <div className="card-assignee">{card.assignee}</div>}
+            {card.description && <div className="card-description">{card.description}</div>}
+            {(card.assignee || card.dueDate) && (
+                <div className="card-meta">
+                    <span>{card.assignee}</span>
+                    {card.dueDate && <span>Due {formatDate(card.dueDate)}</span>}
+                </div>
+            )}
         </div>
     )
 }
