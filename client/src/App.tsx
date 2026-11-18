@@ -22,14 +22,32 @@ function App() {
   const [newAssignee, setNewAssignee] = useState("")
   const [newDueDate, setNewDueDate] = useState("")
   const [editingCardId, setEditingCardId] = useState<string | null>(null)
+  const [isConnected, setIsConnected] = useState(true)
+  const [saveError, setSaveError] = useState<string | null>(null)
 
   const editingCard = cards.find((card) => card.id === editingCardId)
 
   useEffect(() => {
+    function handleConnect() {
+      setIsConnected(true)
+    }
+
+    function handleDisconnect() {
+      setIsConnected(false)
+    }
+
     socket.on("cards", setCards)
+    socket.on("save:error", setSaveError)
+    socket.on("connect", handleConnect)
+    socket.on("disconnect", handleDisconnect)
+    socket.on("connect_error", handleDisconnect)
 
     return () => {
       socket.off("cards", setCards)
+      socket.off("save:error", setSaveError)
+      socket.off("connect", handleConnect)
+      socket.off("disconnect", handleDisconnect)
+      socket.off("connect_error", handleDisconnect)
     }
   }, [])
 
@@ -72,6 +90,21 @@ function App() {
   return (
     <div className="app">
       <h1>Realtime Kanban</h1>
+
+      {!isConnected && (
+        <div className="banner banner-warning">
+          Disconnected from server. Reconnecting...
+        </div>
+      )}
+
+      {saveError && (
+        <div className="banner banner-error">
+          {saveError}
+          <button onClick={() => setSaveError(null)} aria-label="Dismiss error">
+            ✕
+          </button>
+        </div>
+      )}
 
       <div className="workspace">
         {editingCard ? (

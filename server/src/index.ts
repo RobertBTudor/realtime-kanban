@@ -7,8 +7,18 @@ process.loadEnvFile()
 const uri = process.env.MONGODB_URI
 if (!uri) throw new Error("MONGODB_URI is missing from server/.env")
 
-const client = new MongoClient(uri)
-await client.connect()
+const client = new MongoClient(uri, { serverSelectionTimeoutMS: 10000 })
+
+try {
+  await client.connect()
+} catch (error) {
+  console.error("Could not connect to MongoDB Atlas. Check that:")
+  console.error("  1. Your current IP is allowed in Atlas > Network Access")
+  console.error("  2. MONGODB_URI in server/.env is correct")
+  console.error("  3. You are connected to the internet")
+  console.error("Details:", (error as Error).message)
+  process.exit(1)
+}
 console.log("Connected to MongoDB")
 
 const cardsCollection = client.db("kanban").collection<Card>("cards")
@@ -38,7 +48,13 @@ io.on("connection", (socket) => {
   socket.emit("cards", cards)
 
   socket.on("card:move", async (cardId: string, toColumnId: string) => {
-    await cardsCollection.updateOne({ id: cardId }, { $set: { columnId: toColumnId } })
+    try {
+      await cardsCollection.updateOne({ id: cardId }, { $set: { columnId: toColumnId } })
+    } catch (error) {
+      console.error("Failed to move card:", (error as Error).message)
+      socket.emit("save:error", "Couldn't move the card. Please try again.")
+      return
+    }
     cards = cards.map((card) =>
       card.id === cardId ? { ...card, columnId: toColumnId } : card
     )
@@ -46,19 +62,37 @@ io.on("connection", (socket) => {
   })
 
   socket.on("card:add", async (newCard: Card) => {
-    await cardsCollection.insertOne({ ...newCard })
+    try {
+      await cardsCollection.insertOne({ ...newCard })
+    } catch (error) {
+      console.error("Failed to add card:", (error as Error).message)
+      socket.emit("save:error", "Couldn't add the card. Please try again.")
+      return
+    }
     cards = [...cards, newCard]
     io.emit("cards", cards)
   })
 
   socket.on("card:delete", async (cardId: string) => {
-    await cardsCollection.deleteOne({ id: cardId })
+    try {
+      await cardsCollection.deleteOne({ id: cardId })
+    } catch (error) {
+      console.error("Failed to delete card:", (error as Error).message)
+      socket.emit("save:error", "Couldn't delete the card. Please try again.")
+      return
+    }
     cards = cards.filter((card) => card.id !== cardId)
     io.emit("cards", cards)
   })
 
   socket.on("card:update", async (updatedCard: Card) => {
-    await cardsCollection.replaceOne({ id: updatedCard.id }, updatedCard)
+    try {
+      await cardsCollection.replaceOne({ id: updatedCard.id }, updatedCard)
+    } catch (error) {
+      console.error("Failed to update card:", (error as Error).message)
+      socket.emit("save:error", "Couldn't save your changes. Please try again.")
+      return
+    }
     cards = cards.map((card) =>
       card.id === updatedCard.id ? updatedCard : card
     )

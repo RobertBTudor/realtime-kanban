@@ -2,6 +2,35 @@
   padding: 24px;
 }
 
+.banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.banner-warning {
+  background: #fff4d6;
+  color: #7a5200;
+}
+
+.banner-error {
+  background: #ffeceb;
+  color: #ae2e24;
+}
+
+.banner button {
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
 .workspace {
   display: flex;
   gap: 24px;
