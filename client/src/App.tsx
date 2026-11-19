@@ -24,6 +24,7 @@ function App() {
   const [editingCardId, setEditingCardId] = useState<string | null>(null)
   const [isConnected, setIsConnected] = useState(true)
   const [saveError, setSaveError] = useState<string | null>(null)
+  const [dragOverColumnId, setDragOverColumnId] = useState<string | null>(null)
 
   const editingCard = cards.find((card) => card.id === editingCardId)
 
@@ -88,7 +89,7 @@ function App() {
   }
 
   return (
-    <div className="app">
+    <div className="app" onClick={() => setEditingCardId(null)}>
       <h1>Realtime Kanban</h1>
 
       {!isConnected && (
@@ -203,9 +204,20 @@ function App() {
           {sampleColumns.map((column) => (
             <div
               key={column.id}
-              className="column"
-              onDragOver={(event) => event.preventDefault()}
-              onDrop={(event) => moveCard(event.dataTransfer.getData("text/plain"), column.id)}
+              className={column.id === dragOverColumnId ? "column column-drag-over" : "column"}
+              onDragOver={(event) => {
+                event.preventDefault()
+                setDragOverColumnId(column.id)
+              }}
+              onDragLeave={(event) => {
+                if (!event.currentTarget.contains(event.relatedTarget as Node)) {
+                  setDragOverColumnId(null)
+                }
+              }}
+              onDrop={(event) => {
+                setDragOverColumnId(null)
+                moveCard(event.dataTransfer.getData("text/plain"), column.id)
+              }}
             >
               <h2>{column.title}</h2>
               {cards

@@ -36,7 +36,7 @@ function EditCardPanel({ card, onUpdate, onClose }: EditCardPanelProps) {
     }
 
     return (
-        <div className="add-card-form">
+        <div className="add-card-form" onClick={(event) => event.stopPropagation()}>
             <h2>Edit card</h2>
             <div className="card card-preview">
                 {card.priority && <span className={`tag tag-${card.priority}`}>{card.priority}</span>}

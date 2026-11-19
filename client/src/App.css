@@ -102,6 +102,11 @@
   flex: 1;
 }
 
+.column-drag-over {
+  background: #dbe6fb;
+  outline: 2px dashed #0c66e4;
+}
+
 .column h2 {
   font-size: 16px;
   margin: 0 0 12px;

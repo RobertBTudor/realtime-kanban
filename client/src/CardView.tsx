@@ -14,7 +14,10 @@ function CardView({card, isSelected, onSelect, onDelete}: CardViewProps) {
             className={isSelected ? "card card-selected" : "card"}
             draggable
             onDragStart={(event) => event.dataTransfer.setData("text/plain", card.id)}
-            onClick={onSelect}
+            onClick={(event) => {
+                event.stopPropagation()
+                onSelect()
+            }}
         >
             <button
                 className="card-delete"
