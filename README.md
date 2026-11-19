@@ -2,6 +2,8 @@
 
 A kanban board that syncs live across every open browser. Add, move, edit, or delete a card and everyone sees it instantly. Cards are saved in MongoDB.
 
+![Realtime Kanban board](docs/screenshot.png)
+
 ## Features
 
 - Live sync with Socket.io
