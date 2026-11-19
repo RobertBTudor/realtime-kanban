@@ -23,7 +23,7 @@ Requires Node.js 22+ and a free [MongoDB Atlas](https://www.mongodb.com/cloud/at
 ```bash
 # Server
 cd server
-cp .env.example .env   # add your MongoDB connection string
+echo "MONGODB_URI=your-connection-string" > .env
 npm install
 npm run dev
 
